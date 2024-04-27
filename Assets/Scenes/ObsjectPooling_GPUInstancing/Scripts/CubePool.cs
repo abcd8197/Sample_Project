@@ -5,14 +5,14 @@ public class CubePool : MonoBehaviour
     [SerializeField] private GameObject CubePrefab;
     [SerializeField] private float FireInterval = 0.5f;
 
-
     private Codejay.ObjectPool<Cube> pool;
     private float _fireCounter = 0f;
+    private Camera _mainCamera;
 
     private void Awake()
     {
         pool = new Codejay.ObjectPool<Cube>();
-        pool.Initialize(CubePrefab, 256, transform);
+        pool.Initialize(CubePrefab, 512, transform);
     }
 
     private void OnDisable()
@@ -27,7 +27,6 @@ public class CubePool : MonoBehaviour
             pool.DestroyPool();
     }
 
-    
     private void FixedUpdate()
     {
         if (_fireCounter < FireInterval)
