@@ -53,8 +53,8 @@ public class Cube : MonoBehaviour, System.IDisposable
         if (_isCollided && _particle.isEmitting == false)
             Die?.Invoke(this);
 
-        //FrustumCulling_1();
-        FrustumCulling_2();
+        FrustumCulling_1();
+        //FrustumCulling_2();
     }
 
     /// <summary> Dynamic Occulusion Culling </summary>
