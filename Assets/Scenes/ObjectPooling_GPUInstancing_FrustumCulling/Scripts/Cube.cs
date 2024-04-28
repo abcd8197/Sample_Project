@@ -14,6 +14,9 @@ public class Cube : MonoBehaviour, System.IDisposable
 
     private bool _isCollided = false;
     private Vector3[] _vertices;
+    private Plane[] _planes;
+    private Vector3 _cameraPrevPos;
+    private Vector3 _cameraPrevRot;
 
     private void Awake()
     {
@@ -25,6 +28,10 @@ public class Cube : MonoBehaviour, System.IDisposable
         _camera = Camera.main;
 
         _vertices = _meshFilter.sharedMesh.vertices;
+        _planes = GeometryUtility.CalculateFrustumPlanes(_camera);
+
+        _cameraPrevPos = _camera.transform.position;
+        _cameraPrevRot = Camera.main.transform.localEulerAngles;
     }
 
     private void OnEnable()
@@ -53,15 +60,20 @@ public class Cube : MonoBehaviour, System.IDisposable
         if (_isCollided && _particle.isEmitting == false)
             Die?.Invoke(this);
 
+        UnityEngine.Profiling.Profiler.BeginSample("Frustum Culling 1");
         FrustumCulling_1();
+        UnityEngine.Profiling.Profiler.EndSample();
+        //UnityEngine.Profiling.Profiler.BeginSample("Frustum Culling 2");
         //FrustumCulling_2();
+        //UnityEngine.Profiling.Profiler.EndSample();
     }
 
+    #region Frustum Culling 1
     /// <summary> Dynamic Occulusion Culling </summary>
     private void FrustumCulling_1()
     {
-        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
-        bool isVisible = GeometryUtility.TestPlanesAABB(planes, _meshRenderer.bounds);
+        this.PlaneUpdate();
+        bool isVisible = GeometryUtility.TestPlanesAABB(_planes, _meshRenderer.bounds);
 
         if (isVisible && _meshRenderer.enabled == false)
             _meshRenderer.enabled = true;
@@ -69,6 +81,20 @@ public class Cube : MonoBehaviour, System.IDisposable
             _meshRenderer.enabled = false;
     }
 
+    /// <summary> For Optimize GC Allocation</summary>
+    private void PlaneUpdate()
+    {
+        if(_cameraPrevPos != _camera.transform.position ||
+            _cameraPrevRot != _camera.transform.localEulerAngles)
+        {
+            _cameraPrevPos = _camera.transform.position;
+            _cameraPrevRot = _camera.transform.localEulerAngles;
+            _planes = GeometryUtility.CalculateFrustumPlanes(_camera);
+        }
+    }
+    #endregion
+
+    #region Frustum Culling 2
     private void FrustumCulling_2()
     {
         bool isInViewport = false;
@@ -82,12 +108,16 @@ public class Cube : MonoBehaviour, System.IDisposable
             if (viewpotPoint.x >= 0 && viewpotPoint.x <= 1 &&
                 viewpotPoint.y >= 0 && viewpotPoint.y <= 1 &&
                 viewpotPoint.z > 0)
+            {
                 isInViewport = true;
+                break;
+            }
         }
 
         if (_meshRenderer.enabled != isInViewport)
             _meshRenderer.enabled = isInViewport;
     }
+    #endregion
 
     public void OnCollisionEnter(Collision collision)
     {
