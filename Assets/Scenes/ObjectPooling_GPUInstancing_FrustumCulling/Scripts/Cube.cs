@@ -13,7 +13,6 @@ public class Cube : MonoBehaviour, System.IDisposable
     private Camera _camera;
 
     private bool _isCollided = false;
-    private Vector3[] _vertices;
 
     private void Awake()
     {
@@ -23,8 +22,6 @@ public class Cube : MonoBehaviour, System.IDisposable
         _mpb = new MaterialPropertyBlock();
         _rb = GetComponent<Rigidbody>();
         _camera = Camera.main;
-
-        _vertices = _meshFilter.mesh.vertices;
     }
 
     private void OnEnable()
@@ -32,9 +29,11 @@ public class Cube : MonoBehaviour, System.IDisposable
         this.transform.localPosition = Vector3.zero;
         _isCollided = false;
 
+        _meshRenderer.GetPropertyBlock(_mpb);
         _mpb.SetColor("_Color", Random.ColorHSV());
         _mpb.SetFloat("_Metalic", Random.Range(0, 1));
         _meshRenderer.SetPropertyBlock(_mpb);
+
         _rb.mass = Random.Range(2, 5);
 
         transform.rotation = Random.rotation;
@@ -51,28 +50,19 @@ public class Cube : MonoBehaviour, System.IDisposable
         if (_isCollided && _particle.isEmitting == false)
             Die?.Invoke(this);
 
-        OcculusionCullingUpdate();
+        FrustumCulling();
     }
 
     /// <summary> Dynamic Occulusion Culling </summary>
-    private void OcculusionCullingUpdate()
+    private void FrustumCulling()
     {
-        bool isInViewport = false;
+        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
+        bool isVisible = GeometryUtility.TestPlanesAABB(planes, _meshRenderer.bounds);
 
-        for (int i = 0; i < _vertices.Length; i++)
-        {
-            // Calcuate World Point -> Viewport Point
-            Vector3 worldPoint = transform.TransformPoint(_vertices[i]);
-            Vector3 viewpotPoint = _camera.WorldToViewportPoint(worldPoint);
-
-            if (viewpotPoint.x >= 0 && viewpotPoint.x <= 1 &&
-                viewpotPoint.y >= 0 && viewpotPoint.y <= 1 &&
-                viewpotPoint.z > 0)
-                isInViewport = true;
-        }
-
-        if (_meshRenderer.enabled != isInViewport)
-            _meshRenderer.enabled = isInViewport;
+        if (isVisible && _meshRenderer.enabled == false)
+            _meshRenderer.enabled = true;
+        else if (!isVisible && _meshRenderer.enabled)
+            _meshRenderer.enabled = false;
     }
 
     public void OnCollisionEnter(Collision collision)
