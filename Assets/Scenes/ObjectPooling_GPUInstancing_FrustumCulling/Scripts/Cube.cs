@@ -13,6 +13,7 @@ public class Cube : MonoBehaviour, System.IDisposable
     private Camera _camera;
 
     private bool _isCollided = false;
+    private Vector3[] _vertices;
 
     private void Awake()
     {
@@ -22,6 +23,8 @@ public class Cube : MonoBehaviour, System.IDisposable
         _mpb = new MaterialPropertyBlock();
         _rb = GetComponent<Rigidbody>();
         _camera = Camera.main;
+
+        _vertices = _meshFilter.sharedMesh.vertices;
     }
 
     private void OnEnable()
@@ -50,11 +53,12 @@ public class Cube : MonoBehaviour, System.IDisposable
         if (_isCollided && _particle.isEmitting == false)
             Die?.Invoke(this);
 
-        FrustumCulling();
+        //FrustumCulling_1();
+        FrustumCulling_2();
     }
 
     /// <summary> Dynamic Occulusion Culling </summary>
-    private void FrustumCulling()
+    private void FrustumCulling_1()
     {
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
         bool isVisible = GeometryUtility.TestPlanesAABB(planes, _meshRenderer.bounds);
@@ -63,6 +67,26 @@ public class Cube : MonoBehaviour, System.IDisposable
             _meshRenderer.enabled = true;
         else if (!isVisible && _meshRenderer.enabled)
             _meshRenderer.enabled = false;
+    }
+
+    private void FrustumCulling_2()
+    {
+        bool isInViewport = false;
+
+        for (int i = 0; i < _vertices.Length; i++)
+        {
+            // Calcuate World Point -> Viewport Point
+            Vector3 worldPoint = transform.TransformPoint(_vertices[i]);
+            Vector3 viewpotPoint = _camera.WorldToViewportPoint(worldPoint);
+
+            if (viewpotPoint.x >= 0 && viewpotPoint.x <= 1 &&
+                viewpotPoint.y >= 0 && viewpotPoint.y <= 1 &&
+                viewpotPoint.z > 0)
+                isInViewport = true;
+        }
+
+        if (_meshRenderer.enabled != isInViewport)
+            _meshRenderer.enabled = isInViewport;
     }
 
     public void OnCollisionEnter(Collision collision)
