@@ -5,6 +5,6 @@ namespace Codejay
 
     public class QuadTree
     {
-
+        
     }
 }
