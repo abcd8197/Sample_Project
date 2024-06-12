@@ -195,7 +195,7 @@ MonoBehaviour:
 
 
     1. Pooling
-    System + GPU Instancing + FrustumCulling
+    System + GPU Instancing
 
     2. Global Event System (Singleton)'
   m_isRightToLeft: 0

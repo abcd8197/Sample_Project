@@ -24,7 +24,7 @@ namespace Codejay
         /// Initialize For use Pooling System.
         /// </summary>
         /// <param name="prefab">Create Target</param>
-        /// <param name="capacity">Pool System Capacity</param>
+        /// <param name="capacity">Pool Container Capacity</param>
         /// <param name="parent">Set Parent Target</param>
         public void Initialize(GameObject prefab, int capacity = 32, Transform parent = null)
         {
