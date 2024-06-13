@@ -1,21 +1,13 @@
 namespace Player_MVC_FSM
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using UnityEngine;
 
     public class PlayerModel : MonoBehaviour
     {
-        // Start is called before the first frame update
-        void Start()
-        {
+        [SerializeField] private PlayerData m_Data = null;
+        private PlayerController m_Controller;
 
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
+        public PlayerData Data { get => m_Data; }
+        public void SetController(PlayerController controller) => m_Controller = controller;
     }
 }
