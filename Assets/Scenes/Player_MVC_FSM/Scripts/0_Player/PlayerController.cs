@@ -5,61 +5,79 @@ namespace Player_MVC_FSM
     [RequireComponent(typeof(PlayerModel), typeof(PlayerView))]
     public class PlayerController : MonoBehaviour, IMoveable, IJumpable
     {
-        #region Inspector Properties
-        [SerializeField] private Rigidbody _rigidBody;
-        #endregion
-
         #region Private Fields
         private PlayerModel m_Model;
         private PlayerView m_View;
 
-        private IMoveable m_IMoveable;
-        private IJumpable m_IJumpable;
-
         private float m_RunWeight = 1;
+        private bool m_isRunning = false;
         #endregion
 
         private void Awake()
         {
             m_Model = this.GetComponent<PlayerModel>();
             m_View = this.GetComponent<PlayerView>();
+
+            GlobalInputManager.OnMove += this.Move;
+            GlobalInputManager.OnSpaceBarDown += this.OnSpaceBarDown;
+            GlobalInputManager.OnLeftShiftDown += this.OnLeftShiftDown;
+            GlobalInputManager.OnLeftShiftUp += this.OnLeftShiftUp;
         }
 
-        private void FixedUpdate()
+        private void OnDestroy()
         {
-            if (GlobalInputManager.Instance != null)
-            {
-                this.Move(GlobalInputManager.Instance.MoveDirection);
-            }
-        }
-
-        public void Jump()
-        {
-
+            GlobalInputManager.OnMove -= this.Move;
+            GlobalInputManager.OnSpaceBarDown -= this.OnSpaceBarDown;
+            GlobalInputManager.OnLeftShiftDown -= this.OnLeftShiftDown;
+            GlobalInputManager.OnLeftShiftUp -= this.OnLeftShiftUp;
         }
 
         public void Move(Vector3 direction)
         {
-            if (GlobalInputManager.Instance.IsDown_LShift)
+            if (direction.magnitude < 0.01)
             {
-                if (m_RunWeight < 2)
-                    m_RunWeight += Time.fixedDeltaTime;
-                else
-                    m_RunWeight = 2;
+                m_RunWeight = 0;
+
+                if (m_View != null)
+                    m_View.Move(Vector3.zero, 0, 0);
             }
             else
             {
-                if (m_RunWeight > 2)
+                if (m_isRunning)
+                {
+                    m_RunWeight = Mathf.Clamp(m_RunWeight + Time.fixedDeltaTime, 1, 2);
+                }
+                else if (m_RunWeight > 1 + Time.fixedDeltaTime + float.Epsilon)
+                {
                     m_RunWeight -= Time.fixedDeltaTime;
+                }
+                else if (m_RunWeight < 1 - Time.fixedDeltaTime - float.Epsilon)
+                {
+                    m_RunWeight += Time.fixedDeltaTime;
+                }
                 else
+                {
                     m_RunWeight = 1;
+                }
+
+                if (m_View != null)
+                    m_View.Move(direction, m_Model.Data.MoveSpeed * m_RunWeight, m_RunWeight);
             }
-
-            if (m_Model != null && m_Model.Data != null)
-                _rigidBody.MovePosition(this.transform.position + (direction.normalized * m_Model.Data.MoveSpeed * m_RunWeight * Time.fixedDeltaTime));
-
-            if (m_View != null)
-                m_View.SetMoveSpeed(Mathf.Clamp01(direction.magnitude) * m_RunWeight);
         }
+
+        public void Jump(float power)
+        {
+            if (m_View != null)
+            {
+                m_View.Jump(Vector3.up, power);
+            }
+        }
+
+        #region Events
+        private void OnLeftShiftDown() => m_isRunning = true;
+        private void OnLeftShiftUp() => m_isRunning = false;
+
+        private void OnSpaceBarDown() => this.Jump(m_Model.Data.JumpPower);
+        #endregion
     }
 }

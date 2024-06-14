@@ -5,12 +5,17 @@ namespace Player_MVC_FSM
     {
         public static GlobalInputManager Instance = null;
 
-        public Vector3 MoveDirection { get; private set; }
-        public bool IsDown_LShift { get; private set; }
+        public static UnityEngine.Events.UnityAction<Vector3> OnMove;
+        public static UnityEngine.Events.UnityAction OnLeftShiftDown;
+        public static UnityEngine.Events.UnityAction OnLeftShiftUp;
+        public static UnityEngine.Events.UnityAction OnSpaceBarDown;
+
+        private Vector3 m_prevMoveDirection = Vector3.zero;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
         {
+
             if (Instance == null)
             {
                 Instance = new GameObject("_InputManager").AddComponent<GlobalInputManager>();
@@ -22,12 +27,21 @@ namespace Player_MVC_FSM
         {
             if (Input.anyKey || Input.anyKeyDown)
             {
-                MoveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+                Vector3 dir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+                dir = dir.normalized;
+                OnMove?.Invoke(dir);
+                m_prevMoveDirection = dir;
 
-                IsDown_LShift = Input.GetKey(KeyCode.LeftShift);
+                if (Input.GetKeyDown(KeyCode.LeftShift))
+                    OnLeftShiftDown?.Invoke();
+                else if (Input.GetKeyUp(KeyCode.LeftShift))
+                    OnLeftShiftUp?.Invoke();
             }
-            else
-                MoveDirection = Vector2.zero;
+            else if (m_prevMoveDirection != Vector3.zero)
+            {
+                OnMove?.Invoke(Vector3.zero);
+                m_prevMoveDirection = Vector3.zero;
+            }
         }
     }
 }
