@@ -6,11 +6,14 @@ namespace Player_MVC_FSM
         public static GlobalInputManager Instance = null;
 
         public static UnityEngine.Events.UnityAction<Vector3> OnMove;
+        public static UnityEngine.Events.UnityAction<Vector3> OnMouseMove;
         public static UnityEngine.Events.UnityAction OnLeftShiftDown;
         public static UnityEngine.Events.UnityAction OnLeftShiftUp;
         public static UnityEngine.Events.UnityAction OnSpaceBarDown;
 
-        private Vector3 m_prevMoveDirection = Vector3.zero;
+
+        public Vector3 m_prevMoveDirection = Vector3.zero;
+        public Vector2 m_prevMouseAxis = Vector2.zero;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
@@ -20,11 +23,22 @@ namespace Player_MVC_FSM
             {
                 Instance = new GameObject("_InputManager").AddComponent<GlobalInputManager>();
                 DontDestroyOnLoad(Instance.gameObject);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
         }
 
         private void Update()
         {
+#if UNITY_STANDALONE
+            Vector2 mouse = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+            if (mouse != m_prevMouseAxis)
+            {
+                m_prevMouseAxis = mouse.normalized;
+                OnMouseMove?.Invoke(mouse.normalized);
+            }
+#endif
+
             if (Input.anyKey || Input.anyKeyDown)
             {
                 Vector3 dir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));

@@ -181,11 +181,34 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Hello!\n\n\nThis project is a sample project with various features.\n\n\nEach
-    scene contains one specific feature. The features are as follows:\n\n\n1. Pooling
-    System + GPU Instancing\n\n2. Global Event System (Singleton)\n\n3. Open World
-    Resource Streaming System (In Development)\n Quad Tree + Job System + BursCompiler
-    + Addressable Asset System.."
+  m_text: '<size=45>Hello!</size>
+
+
+    This project is a sample project with various
+    features.
+
+
+
+    Each scene contains one specific feature. The features are as
+    follows:
+
+
+
+    1. Pooling System + GPU Instancing
+
+
+    2. Global Event System
+    (Singleton)
+
+
+    3. Open World Resource Streaming System - In Development
+
+    <size=30>(Quad
+    Tree + Job System + BursCompiler + Addressable Asset System)</size>
+
+
+    4.
+    TPS Player Controller (MVC + FSM)'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -236,7 +259,7 @@ MonoBehaviour:
   m_enableKerning: 0
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
-  m_isRichText: 0
+  m_isRichText: 1
   m_parseCtrlCharacters: 0
   m_isOrthographic: 1
   m_isCullingEnabled: 0

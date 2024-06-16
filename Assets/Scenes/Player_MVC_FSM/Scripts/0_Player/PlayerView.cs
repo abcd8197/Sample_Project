@@ -31,10 +31,14 @@ namespace Player_MVC_FSM
             {
                 _animator.SetFloat("MoveSpeed", weight);
 
+
                 Vector3 cameraForward = new Vector3(_cameraArmTransform.forward.x, 0, _cameraArmTransform.forward.z);
                 Vector3 cameraRight = new Vector3(_cameraArmTransform.right.x, 0, _cameraArmTransform.right.z);
                 Vector3 resultDir = direction.x * cameraRight + direction.z * cameraForward;
                 resultDir = resultDir.normalized;
+
+                if (_animator.transform.forward != resultDir)
+                    _animator.transform.forward = resultDir;
 
                 m_LastDirection = resultDir;
 
