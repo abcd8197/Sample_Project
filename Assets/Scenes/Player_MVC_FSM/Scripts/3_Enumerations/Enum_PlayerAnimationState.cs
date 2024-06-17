@@ -1,4 +1,4 @@
-namespace Player_MVC_FSM
+namespace TPSPlayerController_Scene
 {
     public enum EPlayerAnimationState
     {

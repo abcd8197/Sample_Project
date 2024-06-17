@@ -1,4 +1,4 @@
-namespace Player_MVC_FSM
+namespace TPSPlayerController_Scene
 {
     using UnityEngine;
 
@@ -6,11 +6,13 @@ namespace Player_MVC_FSM
     public class PlayerController : MonoBehaviour, IMoveable, IJumpable
     {
         #region Private Fields
-        private PlayerModel m_Model;
-        private PlayerView m_View;
+        public PlayerModel m_Model { get; private set; }
+        public PlayerView m_View { get; private set; }
 
         private float m_RunWeight = 1;
         private bool m_isRunning = false;
+        private System.Collections.Generic.Dictionary<System.Type, PlayerStateBase> _dicStateCaches;
+        private PlayerStateBase m_currentState;
         #endregion
 
         private void Awake()
@@ -18,19 +20,48 @@ namespace Player_MVC_FSM
             m_Model = this.GetComponent<PlayerModel>();
             m_View = this.GetComponent<PlayerView>();
 
-            GlobalInputManager.OnMove += this.Move;
+            GlobalInputManager.OnMoveStart += this.OnMoveStart;
             GlobalInputManager.OnSpaceBarDown += this.OnSpaceBarDown;
             GlobalInputManager.OnLeftShiftDown += this.OnLeftShiftDown;
             GlobalInputManager.OnLeftShiftUp += this.OnLeftShiftUp;
+
+            _dicStateCaches = new System.Collections.Generic.Dictionary<System.Type, PlayerStateBase>();
         }
 
         private void OnDestroy()
         {
-            GlobalInputManager.OnMove -= this.Move;
             GlobalInputManager.OnSpaceBarDown -= this.OnSpaceBarDown;
             GlobalInputManager.OnLeftShiftDown -= this.OnLeftShiftDown;
             GlobalInputManager.OnLeftShiftUp -= this.OnLeftShiftUp;
         }
+
+        private void FixedUpdate()
+        {
+            m_currentState?.Execute();
+        }
+
+        public void ChangeState<T>() where T : PlayerStateBase, new()
+        {
+            System.Type stateType = typeof(T);
+
+            if (!_dicStateCaches.TryGetValue(stateType, out PlayerStateBase state))
+            {
+                state = new T();
+                if(state is IStateSetter setter)
+                {
+                    setter.SetController(this);
+                }
+
+                _dicStateCaches[stateType] = state;
+            }
+
+            m_currentState?.Exit();
+            m_currentState = state;
+            m_currentState?.Enter();
+        }
+
+        public void OnMoveStart() => ChangeState<PlayerState_Move>();
+        public void OnMoveEnd() => ChangeState<PlayerState_Idle>();
 
         public void Move(Vector3 direction)
         {

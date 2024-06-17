@@ -1,4 +1,4 @@
-namespace Player_MVC_FSM
+namespace TPSPlayerController_Scene
 {
     using UnityEngine;
     public class GlobalInputManager : MonoBehaviour
@@ -6,19 +6,22 @@ namespace Player_MVC_FSM
         public static GlobalInputManager Instance = null;
 
         public static UnityEngine.Events.UnityAction<Vector3> OnMove;
+        public static UnityEngine.Events.UnityAction OnMoveStart;
+        public static UnityEngine.Events.UnityAction OnMoveEnd;
         public static UnityEngine.Events.UnityAction<Vector3> OnMouseMove;
         public static UnityEngine.Events.UnityAction OnLeftShiftDown;
         public static UnityEngine.Events.UnityAction OnLeftShiftUp;
         public static UnityEngine.Events.UnityAction OnSpaceBarDown;
 
-
-        public Vector3 m_prevMoveDirection = Vector3.zero;
-        public Vector2 m_prevMouseAxis = Vector2.zero;
+        private bool m_isMove = false;
+        public Vector3 m_prevMoveDirection { get; private set; } = Vector3.zero;
+        public Vector2 m_prevMouseAxis { get; private set; } = Vector2.zero;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
         {
-
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "TPSPlayerController")
+                return;
             if (Instance == null)
             {
                 Instance = new GameObject("_InputManager").AddComponent<GlobalInputManager>();
@@ -41,6 +44,12 @@ namespace Player_MVC_FSM
 
             if (Input.anyKey || Input.anyKeyDown)
             {
+                if (!m_isMove)
+                {
+                    m_isMove = true;
+                    OnMoveStart?.Invoke();
+                }
+
                 Vector3 dir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
                 dir = dir.normalized;
                 OnMove?.Invoke(dir);
@@ -51,9 +60,11 @@ namespace Player_MVC_FSM
                 else if (Input.GetKeyUp(KeyCode.LeftShift))
                     OnLeftShiftUp?.Invoke();
             }
-            else if (m_prevMoveDirection != Vector3.zero)
+            else if (m_prevMoveDirection != Vector3.zero && m_isMove)
             {
+                m_isMove = false;
                 OnMove?.Invoke(Vector3.zero);
+                OnMoveEnd?.Invoke();
                 m_prevMoveDirection = Vector3.zero;
             }
         }

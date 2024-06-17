@@ -1,4 +1,4 @@
-namespace Player_MVC_FSM
+namespace TPSPlayerController_Scene
 {
     using UnityEngine;
 
@@ -18,6 +18,14 @@ namespace Player_MVC_FSM
             m_StopCoroutine = null;
         }
 
+        public void StopMove()
+        {
+            if (m_StopCoroutine != null)
+                StopCoroutine(m_StopCoroutine);
+
+            m_StopCoroutine = StartCoroutine(coroStopMove());
+        }
+
         public void Move(Vector3 direction, float speed, float weight)
         {
             if (m_StopCoroutine != null)
@@ -25,12 +33,11 @@ namespace Player_MVC_FSM
 
             if (weight <= float.Epsilon)
             {
-                m_StopCoroutine = StartCoroutine(coroStopMove());
+                this.StopMove();
             }
             else
             {
                 _animator.SetFloat("MoveSpeed", weight);
-
 
                 Vector3 cameraForward = new Vector3(_cameraArmTransform.forward.x, 0, _cameraArmTransform.forward.z);
                 Vector3 cameraRight = new Vector3(_cameraArmTransform.right.x, 0, _cameraArmTransform.right.z);

@@ -1,19 +1,25 @@
 using UnityEngine;
-using Player_MVC_FSM;
+using TPSPlayerController_Scene;
 
 public class CameraArmController : MonoBehaviour
 {
     [SerializeField] private float Sensitivity_X = 270;
-    [SerializeField] private float Sensitivity_Y = 180;
+    [SerializeField] private float Sensitivity_Y = 230;
     [SerializeField] private bool ReverseX = false;
-    [SerializeField] private bool ReverseY = false;
+    [SerializeField] private bool ReverseY = true;
+    [SerializeField] private float Smoothing = 0.1f;
 
     private Vector3 m_rotateAmount;
+    private Vector3 m_currentRotation;
+    private Vector3 m_rotationVelocity;
 
     private void Awake()
     {
-        m_rotateAmount = Vector3.zero;
         this.transform.localEulerAngles = Vector2.right * 30;
+
+        m_rotateAmount = Vector3.zero;
+        m_currentRotation = this.transform.localEulerAngles;
+
         GlobalInputManager.OnMouseMove += RotateCameraArm;
     }
 
@@ -29,6 +35,7 @@ public class CameraArmController : MonoBehaviour
         m_rotateAmount.y += (ReverseX ? -delta.x : delta.x) * Sensitivity_X * Time.deltaTime;
         m_rotateAmount.z = 0f;
 
+        m_currentRotation = Vector3.SmoothDamp(m_currentRotation, m_rotationVelocity, ref m_rotationVelocity, Smoothing);
         this.transform.localEulerAngles = m_rotateAmount;
     }
 }
