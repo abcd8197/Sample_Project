@@ -8,9 +8,16 @@ namespace TPSPlayerController_Scene
         [SerializeField] private Rigidbody _rigidBody;
         [SerializeField] private Transform _cameraArmTransform;
 
+        [Header("Values")]
+        [SerializeField] private float _rotationSpped = 720;
+
         private Vector3 m_LastDirection = Vector3.zero;
         private Coroutine m_StopCoroutine = null;
         private float m_StopWeight = 2f;
+
+        private Vector3 m_roationVelocity = Vector3.zero;
+
+        public bool IsGround { get; private set; } = true;
 
         private void OnDestroy()
         {
@@ -44,8 +51,8 @@ namespace TPSPlayerController_Scene
                 Vector3 resultDir = direction.x * cameraRight + direction.z * cameraForward;
                 resultDir = resultDir.normalized;
 
-                if (_animator.transform.forward != resultDir)
-                    _animator.transform.forward = resultDir;
+                _animator.transform.rotation = Quaternion.RotateTowards(_animator.transform.rotation, Quaternion.LookRotation(resultDir), Time.deltaTime * _rotationSpped);
+
 
                 m_LastDirection = resultDir;
 
@@ -59,6 +66,7 @@ namespace TPSPlayerController_Scene
         public void Jump(Vector3 direction, float jumpForce)
         {
             _rigidBody.AddForce(direction * jumpForce, ForceMode.Impulse);
+            _animator.Play("Jump", 0, 0);
         }
 
         private System.Collections.IEnumerator coroStopMove()
@@ -81,6 +89,15 @@ namespace TPSPlayerController_Scene
             _animator.SetFloat("MoveSpeed", 0);
 
             m_StopCoroutine = null;
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.transform.CompareTag("Ground") && !IsGround)
+            {
+                IsGround = true;
+            }
+
         }
     }
 }

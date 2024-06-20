@@ -22,5 +22,5 @@ MonoBehaviour:
   - m_state: 2
     m_duration: 0.517
     m_triggerMoments: []
-  m_MoveSpeed: 2
+  m_MoveSpeed: 1.75
   m_JumpPower: 5

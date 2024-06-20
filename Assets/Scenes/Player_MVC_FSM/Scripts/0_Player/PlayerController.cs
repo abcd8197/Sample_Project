@@ -6,8 +6,6 @@ namespace TPSPlayerController_Scene
     public class PlayerController : MonoBehaviour, IMoveable, IJumpable
     {
         #region Private Fields
-        public PlayerModel m_Model { get; private set; }
-        public PlayerView m_View { get; private set; }
 
         private float m_RunWeight = 1;
         private bool m_isRunning = false;
@@ -15,10 +13,16 @@ namespace TPSPlayerController_Scene
         private PlayerStateBase m_currentState;
         #endregion
 
+        #region Properties
+        public PlayerModel Model { get; private set; }
+        public PlayerView View { get; private set; }
+        public bool IsGround { get => View.IsGround; }
+        #endregion
+
         private void Awake()
         {
-            m_Model = this.GetComponent<PlayerModel>();
-            m_View = this.GetComponent<PlayerView>();
+            Model = this.GetComponent<PlayerModel>();
+            View = this.GetComponent<PlayerView>();
 
             GlobalInputManager.OnMoveStart += this.OnMoveStart;
             GlobalInputManager.OnSpaceBarDown += this.OnSpaceBarDown;
@@ -26,6 +30,7 @@ namespace TPSPlayerController_Scene
             GlobalInputManager.OnLeftShiftUp += this.OnLeftShiftUp;
 
             _dicStateCaches = new System.Collections.Generic.Dictionary<System.Type, PlayerStateBase>();
+            ChangeState<PlayerState_Idle>();
         }
 
         private void OnDestroy()
@@ -35,7 +40,7 @@ namespace TPSPlayerController_Scene
             GlobalInputManager.OnLeftShiftUp -= this.OnLeftShiftUp;
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             m_currentState?.Execute();
         }
@@ -47,7 +52,7 @@ namespace TPSPlayerController_Scene
             if (!_dicStateCaches.TryGetValue(stateType, out PlayerStateBase state))
             {
                 state = new T();
-                if(state is IStateSetter setter)
+                if (state is IStateSetter setter)
                 {
                     setter.SetController(this);
                 }
@@ -69,8 +74,8 @@ namespace TPSPlayerController_Scene
             {
                 m_RunWeight = 0;
 
-                if (m_View != null)
-                    m_View.Move(Vector3.zero, 0, 0);
+                if (View != null)
+                    View.Move(Vector3.zero, 0, 0);
             }
             else
             {
@@ -91,16 +96,16 @@ namespace TPSPlayerController_Scene
                     m_RunWeight = 1;
                 }
 
-                if (m_View != null)
-                    m_View.Move(direction, m_Model.Data.MoveSpeed * m_RunWeight, m_RunWeight);
+                if (View != null)
+                    View.Move(direction, Model.Data.MoveSpeed * m_RunWeight, m_RunWeight);
             }
         }
 
         public void Jump(float power)
         {
-            if (m_View != null)
+            if (View != null)
             {
-                m_View.Jump(Vector3.up, power);
+                View.Jump(Vector3.up, power);
             }
         }
 
@@ -108,7 +113,7 @@ namespace TPSPlayerController_Scene
         private void OnLeftShiftDown() => m_isRunning = true;
         private void OnLeftShiftUp() => m_isRunning = false;
 
-        private void OnSpaceBarDown() => this.Jump(m_Model.Data.JumpPower);
+        private void OnSpaceBarDown() => this.Jump(Model.Data.JumpPower);
         #endregion
     }
 }
