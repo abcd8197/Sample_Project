@@ -50,15 +50,21 @@ namespace TPSPlayerController_Scene
                     OnMoveStart?.Invoke();
                 }
 
-                Vector3 dir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-                dir = dir.normalized;
-                OnMove?.Invoke(dir);
-                m_prevMoveDirection = dir;
+                if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+                {
+                    Vector3 dir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+                    dir = dir.normalized;
+                    OnMove?.Invoke(dir);
+                    m_prevMoveDirection = dir;
+                }
 
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                     OnLeftShiftDown?.Invoke();
                 else if (Input.GetKeyUp(KeyCode.LeftShift))
                     OnLeftShiftUp?.Invoke();
+                
+                if (Input.GetKeyDown(KeyCode.Space))
+                    OnSpaceBarDown?.Invoke();
             }
             else if (m_prevMoveDirection != Vector3.zero && m_isMove)
             {

@@ -115,8 +115,7 @@ namespace TPSPlayerController_Scene
         {
             if (m_controller.IsGround)
             {
-                //if(GlobalInputManager.Instance.di)
-                //m_controller.ChangeState<PlayerState_Idle>();
+                m_controller.ChangeState<PlayerState_Idle>();
             }
         }
 

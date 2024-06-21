@@ -313,9 +313,9 @@ GameObject:
   - component: {fileID: 309063378}
   - component: {fileID: 309063382}
   - component: {fileID: 309063381}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -470,9 +470,9 @@ GameObject:
   - component: {fileID: 751228654}
   - component: {fileID: 751228653}
   - component: {fileID: 751228652}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

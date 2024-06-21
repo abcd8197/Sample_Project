@@ -28,6 +28,7 @@ namespace TPSPlayerController_Scene
             GlobalInputManager.OnSpaceBarDown += this.OnSpaceBarDown;
             GlobalInputManager.OnLeftShiftDown += this.OnLeftShiftDown;
             GlobalInputManager.OnLeftShiftUp += this.OnLeftShiftUp;
+            GlobalInputManager.OnSpaceBarDown += this.OnSpaceBarDown;
 
             _dicStateCaches = new System.Collections.Generic.Dictionary<System.Type, PlayerStateBase>();
             ChangeState<PlayerState_Idle>();
@@ -103,9 +104,9 @@ namespace TPSPlayerController_Scene
 
         public void Jump(float power)
         {
-            if (View != null)
+            if (!IsGround)
             {
-                View.Jump(Vector3.up, power);
+                ChangeState<PlayerState_Jump>();
             }
         }
 

@@ -13,16 +13,26 @@ namespace TPSPlayerController_Scene
 
         private Vector3 m_LastDirection = Vector3.zero;
         private Coroutine m_StopCoroutine = null;
-        private float m_StopWeight = 2f;
+        private float m_StopWeight = 1.5f;
 
         private Vector3 m_roationVelocity = Vector3.zero;
 
         public bool IsGround { get; private set; } = true;
 
+        private void Awake()
+        {
+            _animator.SetLayerWeight(1, 0);
+        }
+
         private void OnDestroy()
         {
             StopAllCoroutines();
             m_StopCoroutine = null;
+        }
+
+        public void UpdateAnimation()
+        {
+
         }
 
         public void StopMove()
@@ -65,8 +75,13 @@ namespace TPSPlayerController_Scene
 
         public void Jump(Vector3 direction, float jumpForce)
         {
-            _rigidBody.AddForce(direction * jumpForce, ForceMode.Impulse);
-            _animator.Play("Jump", 0, 0);
+            if (!IsGround)
+            {
+                _rigidBody.AddForce(direction * jumpForce, ForceMode.Impulse);
+                _animator.Play("Jump", 1, 0);
+                _animator.SetLayerWeight(1, 1);
+                IsGround = false;
+            }
         }
 
         private System.Collections.IEnumerator coroStopMove()
@@ -96,8 +111,8 @@ namespace TPSPlayerController_Scene
             if (collision.transform.CompareTag("Ground") && !IsGround)
             {
                 IsGround = true;
+                _animator.SetLayerWeight(1, 0);
             }
-
         }
     }
 }
