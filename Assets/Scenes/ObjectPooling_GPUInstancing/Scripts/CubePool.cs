@@ -7,7 +7,6 @@ public class CubePool : MonoBehaviour
 
     private Codejay.ObjectPool<Cube> pool;
     private float _fireCounter = 0f;
-    private Camera _mainCamera;
 
     private void Awake()
     {

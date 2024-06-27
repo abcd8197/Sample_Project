@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Diagnostics;
 using UnityEngine;
 
+// Performance Test Script
+
 public class CompareReflectionMethodSpeed : MonoBehaviour
 {
     public class MyClass

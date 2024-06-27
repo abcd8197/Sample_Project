@@ -30,11 +30,6 @@ public class Cube : MonoBehaviour, System.IDisposable
     {
         this.transform.localPosition = Vector3.zero;
         _isCollided = false;
-        this.SetUpRandomDataOnEnabled();
-    }
-
-    private void SetUpRandomDataOnEnabled()
-    {
         _meshRenderer.GetPropertyBlock(_mpb);
         _mpb.SetColor("_Color", Random.ColorHSV());
         _mpb.SetFloat("_Metalic", Random.Range(0, 1));
@@ -50,7 +45,6 @@ public class Cube : MonoBehaviour, System.IDisposable
         rndForce.z = Random.Range(-0.5f, 0.5f);
         _rb.AddForce(rndForce, ForceMode.Impulse);
     }
-
 
     private void Update()
     {
