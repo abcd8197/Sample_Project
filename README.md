@@ -1,16 +1,11 @@
-Hello!
+<size=45>안녕하세요!</size>
 
-This project is a sample project with various features.
+이 프로젝트는 여러개의 기능들에 대한 테스트 예제들 입니다.
 
+각 씬은 다음과 같은 기능들을 다루고 있습니다.
 
-Each scene contains one specific feature. The features are as follows:
+1. 풀링 시스템과 GPU Instancing
 
+2. 싱글톤 매니저를 활용한 글로벌 이벤트 시스템
 
-1. Pooling System + GPU Instancing
-
-2. Global Event System (Singleton)
-
-3. Open World Resource Streaming System - In Development
-(Quad Tree + Job System + BursCompiler + Addressable Asset System)
-
-4. TPS Player Controller (MVC + FSM)
+3. 어드레서블 에셋시스템
