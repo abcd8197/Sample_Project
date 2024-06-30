@@ -1,18 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class SceneTransitionManager : MonoBehaviour
+namespace AddressableAssetSystem
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    using System.Collections;
+    using UnityEngine;
+    using UnityEngine.SceneManagement;
 
-    // Update is called once per frame
-    void Update()
+    public class SceneTransitionManager : MonoBehaviour
     {
-        
+        public enum ESceneType { BeforeInitialize = -1, Scene_1 = 0, Scene_2, Scene_3, Empty }
+
+        #region ## Fields ##
+        private const float MINIMUM_LOADTIME = 2f;
+        private ESceneType m_CurrentSceneType = ESceneType.BeforeInitialize;
+        #endregion
+
+        #region Properties
+        public ESceneType CurrentSceneType { get => m_CurrentSceneType; }
+        #endregion
+
+        private void Awake()
+        {
+            m_CurrentSceneType = (ESceneType)SceneManager.GetActiveScene().buildIndex;
+        }
+
+        public void LoadScene(ESceneType nextScene)
+        {
+            if (m_CurrentSceneType == nextScene)
+                return;
+
+            StartCoroutine(coroLoadScene(nextScene));
+        }
+
+        private IEnumerator coroLoadScene(ESceneType nextScene)
+        {
+            AsyncOperation async = SceneManager.LoadSceneAsync((int)nextScene);
+            async.allowSceneActivation = false;
+
+            float loadtimeCnt = 0;
+
+            while(true)
+            {
+                if (loadtimeCnt < MINIMUM_LOADTIME)
+                    loadtimeCnt += Time.deltaTime;
+                else if(async.progress >= 0.9f)
+                {
+
+                }
+                yield return null;
+            }
+        }
     }
 }

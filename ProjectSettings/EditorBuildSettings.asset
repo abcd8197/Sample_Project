@@ -4,5 +4,17 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/AddressableAssetSystem/Scenes/AddressableAssetSystem_1.unity
+    guid: 140a658c870649c4794b7bbc0c3d5945
+  - enabled: 1
+    path: Assets/Scenes/AddressableAssetSystem/Scenes/AddressableAssetSystem_2.unity
+    guid: d325544c4c3b35f42a6e4cd2ba39a88a
+  - enabled: 1
+    path: Assets/Scenes/AddressableAssetSystem/Scenes/AddressableAssetSystem_3.unity
+    guid: e3b9c417a37b9694781779a5b0b05b68
+  - enabled: 1
+    path: Assets/Scenes/AddressableAssetSystem/Scenes/EmptyScene.unity
+    guid: cf6ffeb74aa95fd4b9307820557238c9
   m_configObjects: {}

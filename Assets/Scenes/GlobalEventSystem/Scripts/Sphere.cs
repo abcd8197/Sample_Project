@@ -11,17 +11,17 @@ public class Sphere : MonoBehaviour
 
     private void Start()
     {
-        if (EventManager.Instance != null)
+        if (GlobalEventSystem.EventManager.Instance != null)
         {
-            EventManager.Instance.Subscribe(Codejay.Enum.EEventKey.UI_OnClickPlayerJumpButton, this.Jump);
+            GlobalEventSystem.EventManager.Instance.Subscribe(GlobalEventSystem.EEventKey.UI_OnClickPlayerJumpButton, this.Jump);
         }
     }
 
     private void OnDestroy()
     {
-        if (!EventManager.IsApplicationQuitting && EventManager.Instance != null)
+        if (!GlobalEventSystem.EventManager.IsApplicationQuitting && GlobalEventSystem.EventManager.Instance != null)
         {
-            EventManager.Instance.Unsubscribe(Codejay.Enum.EEventKey.UI_OnClickPlayerJumpButton, this.Jump);
+            GlobalEventSystem.EventManager.Instance.Unsubscribe(GlobalEventSystem.EEventKey.UI_OnClickPlayerJumpButton, this.Jump);
         }
 
     }

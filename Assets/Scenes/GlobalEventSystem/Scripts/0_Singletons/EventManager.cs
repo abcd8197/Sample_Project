@@ -1,150 +1,163 @@
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using Codejay.Enum;
-using Codejay.Debug;
-
-public class EventManager : MonoBehaviour
+namespace GlobalEventSystem
 {
-    #region Singleton
-    private static EventManager sInstace;
-    public static EventManager Instance
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+    using GlobalEventSystem;
+    using Codejay.Debug;
+
+    
+    public class EventManager : MonoBehaviour
     {
-        get
+        #region Singleton
+        private static EventManager sInstace;
+        public static EventManager Instance
         {
+            get
+            {
+                if (IsApplicationQuitting)
+                    return null;
+
+                return sInstace;
+            }
+        }
+
+        public static bool IsApplicationQuitting = false;
+        #endregion
+
+        private Dictionary<EEventKey, Delegate> _dicEvents = new Dictionary<EEventKey, Delegate>();
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Initialize()
+        {
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "GlobalEventSystem")
+                return;
             if (sInstace == null)
             {
                 sInstace = new GameObject("_Event").AddComponent<EventManager>();
                 DontDestroyOnLoad(sInstace.gameObject);
             }
-
-            return sInstace;
         }
-    }
 
-    public static bool IsApplicationQuitting = false;
-    #endregion
-
-    private Dictionary<EEventKey, Delegate> _dicEvents = new Dictionary<EEventKey, Delegate>();
-
-    private void OnApplicationQuit()
-    {
-        IsApplicationQuitting = true;
-    }
-
-    private void OnDestroy()
-    {
-        if (_dicEvents != null)
+        private void OnApplicationQuit()
         {
-            _dicEvents.Clear();
+            IsApplicationQuitting = true;
         }
-    }
 
-    #region None Parameter
-    public void Subscribe(EEventKey eventType, Action listener)
-    {
-        if (_dicEvents.TryGetValue(eventType, out Delegate existingDelegate))
+        private void OnDestroy()
         {
-            existingDelegate = Delegate.Combine(existingDelegate, listener);
-            _dicEvents[eventType] = existingDelegate;
-        }
-        else
-            _dicEvents.Add(eventType, listener);
-    }
-
-    public void Unsubscribe(EEventKey eventType, Action listener)
-    {
-        if (_dicEvents.TryGetValue(eventType, out var del))
-        {
-            del = Delegate.Remove(del, listener);
-
-            if (del == null)
+            if (_dicEvents != null)
             {
-                _dicEvents.Remove(eventType);
+                _dicEvents.Clear();
+            }
+        }
+
+        #region None Parameter
+        public void Subscribe(EEventKey eventType, Action listener)
+        {
+            if (_dicEvents.TryGetValue(eventType, out Delegate existingDelegate))
+            {
+                existingDelegate = Delegate.Combine(existingDelegate, listener);
+                _dicEvents[eventType] = existingDelegate;
             }
             else
-            {
-                _dicEvents[eventType] = del;
-            }
+                _dicEvents.Add(eventType, listener);
         }
-    }
-    public void Publish(EEventKey eventType)
-    {
-        if (_dicEvents.TryGetValue(eventType, out Delegate delegates))
+
+        public void Unsubscribe(EEventKey eventType, Action listener)
         {
-            try
+            if (_dicEvents.TryGetValue(eventType, out var del))
             {
-                foreach (var individualDelegate in delegates.GetInvocationList())
+                del = Delegate.Remove(del, listener);
+
+                if (del == null)
                 {
-                    Action action = (Action)individualDelegate;
-                    action.Invoke();
+                    _dicEvents.Remove(eventType);
+                }
+                else
+                {
+                    _dicEvents[eventType] = del;
                 }
             }
-            catch (Exception ex)
+        }
+        public void Publish(EEventKey eventType)
+        {
+            if (_dicEvents.TryGetValue(eventType, out Delegate delegates))
             {
-                Debugger.LoggingCustomException(ex, $"Failed to Publish Event: {eventType}\n");
+                try
+                {
+                    foreach (var individualDelegate in delegates.GetInvocationList())
+                    {
+                        Action action = (Action)individualDelegate;
+                        action.Invoke();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debugger.LoggingCustomException(ex, $"Failed to Publish Event: {eventType}\n");
+                }
             }
         }
-    }
-    #endregion
+        #endregion
 
-    #region Generic Parameter
-    public void Subscribe<T>(EEventKey eventType, Action<T> listener)
-    {
-        if (_dicEvents.TryGetValue(eventType, out Delegate existingDelegate))
+        #region Generic Parameter
+        public void Subscribe<T>(EEventKey eventType, Action<T> listener)
         {
-            existingDelegate = Delegate.Combine(existingDelegate, listener);
-            _dicEvents[eventType] = existingDelegate;
-        }
-        else
-            _dicEvents.Add(eventType, listener);
-    }
-
-    public void Unsubscribe<T>(EEventKey eventType, Action<T> listener)
-    {
-        if (_dicEvents.TryGetValue(eventType, out var del))
-        {
-            del = Delegate.Remove(del, listener);
-
-            if (del == null)
+            if (_dicEvents.TryGetValue(eventType, out Delegate existingDelegate))
             {
-                _dicEvents.Remove(eventType);
+                existingDelegate = Delegate.Combine(existingDelegate, listener);
+                _dicEvents[eventType] = existingDelegate;
             }
             else
-            {
-                _dicEvents[eventType] = del;
-            }
+                _dicEvents.Add(eventType, listener);
         }
-    }
-    public void Publish<T>(EEventKey eventType, T data)
-    {
-        if (_dicEvents.TryGetValue(eventType, out Delegate delegates))
+
+        public void Unsubscribe<T>(EEventKey eventType, Action<T> listener)
         {
-            try
+            if (_dicEvents.TryGetValue(eventType, out var del))
             {
-                foreach (var individualDelegate in delegates.GetInvocationList())
+                del = Delegate.Remove(del, listener);
+
+                if (del == null)
                 {
-                    Action<T> action = (Action<T>)individualDelegate;
-                    action.Invoke(data);
+                    _dicEvents.Remove(eventType);
+                }
+                else
+                {
+                    _dicEvents[eventType] = del;
                 }
             }
-            catch (Exception ex)
+        }
+        public void Publish<T>(EEventKey eventType, T data)
+        {
+            if (_dicEvents.TryGetValue(eventType, out Delegate delegates))
             {
-                Debugger.LoggingCustomException(ex, $"Failed to Publish Event: {eventType}\n");
+                try
+                {
+                    foreach (var individualDelegate in delegates.GetInvocationList())
+                    {
+                        Action<T> action = (Action<T>)individualDelegate;
+                        action.Invoke(data);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debugger.LoggingCustomException(ex, $"Failed to Publish Event: {eventType}\n");
+                }
             }
         }
-    }
-    #endregion
+        #endregion
 
 #if UNITY_EDITOR
-    public void ShowAllListnerCounts()
-    {
-        var strBuilder = new System.Text.StringBuilder("==== 모든 리스너의 개수 ====\n");
-        foreach (var pair in _dicEvents)
+        public void ShowAllListnerCounts()
         {
-            strBuilder.AppendLine($"{pair.Key}: 개수: {((Delegate)pair.Value).GetInvocationList().Length}");
+            var strBuilder = new System.Text.StringBuilder("==== 모든 리스너의 개수 ====\n");
+            foreach (var pair in _dicEvents)
+            {
+                strBuilder.AppendLine($"{pair.Key}: 개수: {((Delegate)pair.Value).GetInvocationList().Length}");
+            }
+            Debug.Log(strBuilder.ToString());
         }
-        Debug.Log(strBuilder.ToString());
-    }
 #endif
+    }
 }

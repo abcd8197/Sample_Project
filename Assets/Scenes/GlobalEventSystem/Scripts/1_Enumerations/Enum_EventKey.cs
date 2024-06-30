@@ -1,22 +1,19 @@
-namespace Codejay
+namespace GlobalEventSystem
 {
-    namespace Enum
+    public enum EEventKey
     {
-        public enum EEventKey
-        {
-            #region Game Events
-            #endregion
+        #region Game Events
+        #endregion
 
-            #region Battle Events
-            #endregion
+        #region Battle Events
+        #endregion
 
-            #region UI Events
-            UI_OnClickPlayerJumpButton,
-            #endregion
+        #region UI Events
+        UI_OnClickPlayerJumpButton,
+        #endregion
 
-            #region Input Events
+        #region Input Events
 
-            #endregion
-        }
+        #endregion
     }
 }

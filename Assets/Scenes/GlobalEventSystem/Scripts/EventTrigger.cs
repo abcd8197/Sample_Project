@@ -1,11 +1,14 @@
-using UnityEngine;
-
-public class EventTrigger : MonoBehaviour
+namespace GlobalEventSystem
 {
-    public Codejay.Enum.EEventKey EventKey;
+    using UnityEngine;
 
-    public void Trigger()
+    public class EventTrigger : MonoBehaviour
     {
-        EventManager.Instance.Publish(EventKey);
+        public EEventKey EventKey;
+
+        public void Trigger()
+        {
+            EventManager.Instance.Publish(EventKey);
+        }
     }
 }
