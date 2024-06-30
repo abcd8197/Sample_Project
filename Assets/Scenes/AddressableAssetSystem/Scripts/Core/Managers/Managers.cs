@@ -19,11 +19,14 @@ namespace AddressableAssetSystem
         }
 
         #region Managers
-        private ResourceManager _resource;
-        private SceneTransitionManager _scene;
+        private AddressableAssetSystem.AddressableAssetManager _addressable;
+        private AddressableAssetSystem.SceneTransitionManager _scene;
+        private AddressableAssetSystem.ResourceManager _resource;
 
-        public static ResourceManager Resource { get => Instance._resource; }
-        public static SceneTransitionManager Scene { get => Instance._scene; }
+
+        public static AddressableAssetSystem.AddressableAssetManager Addressable { get => Instance._addressable; }
+        public static AddressableAssetSystem.SceneTransitionManager Scene { get => Instance._scene; }
+        public static AddressableAssetSystem.ResourceManager Resource { get => Instance._resource; }
         #endregion
 
         #region Fields

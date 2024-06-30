@@ -32,21 +32,17 @@ namespace AddressableAssetSystem
 
         private IEnumerator coroLoadScene(ESceneType nextScene)
         {
-            AsyncOperation async = SceneManager.LoadSceneAsync((int)nextScene);
-            async.allowSceneActivation = false;
+            // 다음 씬에 필요한 리소스를 로드하기 전 Empty Scene을 불러온다.
+            AsyncOperation async = SceneManager.LoadSceneAsync((int)ESceneType.Empty);
+            async.allowSceneActivation = true;
 
-            float loadtimeCnt = 0;
-
-            while(true)
+            while (async.progress < 0.9f)
             {
-                if (loadtimeCnt < MINIMUM_LOADTIME)
-                    loadtimeCnt += Time.deltaTime;
-                else if(async.progress >= 0.9f)
-                {
-
-                }
                 yield return null;
             }
+
+            float loadTimeCount = 0;
+
         }
     }
 }
